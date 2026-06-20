@@ -86,6 +86,14 @@ app.post("/api/lead", async (req, res) => {
             <td style="padding:12px 0;color:#0F1E38;border-bottom:1px solid #eef1f6;">${data.condition || '-'}</td>
           </tr>
           <tr>
+            <td style="padding:12px 0;color:#3D6B9E;border-bottom:1px solid #eef1f6;font-weight:600;">Terms Accepted</td>
+            <td style="padding:12px 0;color:#0F1E38;border-bottom:1px solid #eef1f6;">${data.agreedTerms ? 'Yes' : 'No'}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;color:#3D6B9E;border-bottom:1px solid #eef1f6;font-weight:600;">SMS/Call Consent</td>
+            <td style="padding:12px 0;color:#0F1E38;border-bottom:1px solid #eef1f6;">${data.agreedSms ? 'Yes' : 'No'}</td>
+          </tr>
+          <tr>
             <td style="padding:12px 0;color:#3D6B9E;font-weight:600;vertical-align:top;">Notes</td>
             <td style="padding:12px 0;color:#0F1E38;">${data.situation || '-'}</td>
           </tr>
