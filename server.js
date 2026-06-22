@@ -120,7 +120,7 @@ app.post("/api/lead", async (req, res) => {
 };
 
     await transporter.sendMail(adminMailOptions);
-    console.log("Admin email sent to:", process.env.ADMIN_EMAIL);
+    // console.log("Admin email sent to:", process.env.ADMIN_EMAIL);
 
     if (data.step === 3 && data.email) {
       const userMailOptions = {
