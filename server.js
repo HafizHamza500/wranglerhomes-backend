@@ -7,6 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({ origin: "https://wranglerhomes.com" }));
+// app.use(cors({ origin: "*" }));
 // app.use(cors());
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -149,7 +150,102 @@ app.post("/api/lead", async (req, res) => {
   }
 });
 
+
+app.post("/slack", (req, res) => {
+  const data = req.body;
+
+  console.log("NEW LEAD RECEIVED");
+  console.log("Time:", new Date().toISOString());
+  console.log(JSON.stringify(data, null, 2));
+
+  if (data.challenge) {
+    const challenge = data.challenge;
+
+    return res.status(200).send(challenge);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Lead received successfully"
+  });
+});
+
+app.get("/api/slack/messages", async (req, res) => {
+  try {
+    const response = await fetch(
+      "https://slack.com/api/conversations.history?channel=C08RGTSGZ29&limit=10",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.SLACK_TOKEN}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    res.json(data);
+
+  } catch (error) {
+    console.error("Slack Error:", error);
+
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+app.post("/slack/reply", async (req, res) => {
+  try {
+    const { thread_ts } = req.body;
+
+    if (!thread_ts) {
+      return res.status(400).json({
+        success: false,
+        message: "thread_ts is required"
+      });
+    }
+
+    const slackResponse = await fetch("https://slack.com/api/chat.postMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.SLACK_TOKEN}`
+      },
+      body: JSON.stringify({
+        channel: "C08RGTSGZ29",
+        text: "abcd",
+        thread_ts: thread_ts
+      })
+    });
+
+    const data = await slackResponse.json();
+
+    if (!data.ok) {
+      return res.status(400).json({
+        success: false,
+        message: data.error
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Reply sent successfully"
+    });
+
+  } catch (error) {
+    console.error("Slack reply error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send reply"
+    });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Base URL: https://api.wranglerhomes.com`);
+  console.log(`POST /lead  - Receive leads`);
 });
